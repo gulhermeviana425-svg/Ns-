@@ -1,0 +1,10 @@
+{
+    "sistemaMp": true,
+    "gpanel": "SUA_CHAVE_API",
+    "mp": "",
+    "tempoPay": "10",
+    "gpanelBase": "https://dashboard.gratian.pro/api/v2",
+    "banksOff": [
+        "inter"
+    ]
+}
