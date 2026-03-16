@@ -1,31 +1,81 @@
-const fs = require("fs")
+const { Client, GatewayIntentBits, Collection, Partials } = require("discord.js");
+console.clear()
+const config = require('./config.json');
 
-module.exports = async (client) => {
+const client = new Client({
 
-const SlashsArray = []
+  intents: [
 
-  fs.readdir(`./Comandos`, (error, folder) => {
-  folder.forEach(subfolder => {
-fs.readdir(`./Comandos/${subfolder}/`, (error, files) => { 
-  files.forEach(files => {
-      
-  if(!files?.endsWith('.js')) return;
-  files = require(`../Comandos/${subfolder}/${files}`);
-  if(!files?.name) return;
-  client.slashCommands.set(files?.name, files);
-   
-  SlashsArray.push(files)
-  });
-    });
-  });
+    GatewayIntentBits.Guilds,
+
+    GatewayIntentBits.MessageContent,
+
+    GatewayIntentBits.GuildMessages,
+
+    GatewayIntentBits.GuildMembers,
+
+    GatewayIntentBits.GuildPresences,
+
+    GatewayIntentBits.GuildMessageReactions,
+
+    GatewayIntentBits.GuildMessageTyping,
+
+    GatewayIntentBits.DirectMessages,
+
+    GatewayIntentBits.DirectMessageReactions,
+
+    GatewayIntentBits.DirectMessageTyping
+  ],
+
+  partials: [
+
+    Partials.Message,
+
+    Partials.Channel
+  ]
+
 });
-  client.on("ready", async () => {
-    try { await client.application.commands.set([]); } catch {}
-    for (const guild of client.guilds.cache.values()) {
-      try {
-        await guild.commands.set([]);
-        await guild.commands.set(SlashsArray);
-      } catch {}
-    }
-  });
+
+module.exports = client;
+
+client.slashCommands = new Collection();
+
+const { token } = require("./config.json");
+
+client.login(token);
+
+const evento = require("./handler/Events");
+
+evento.run(client);
+
+require("./handler/index")(client);
+
+process.on('unhandledRejection', (reason, promise) => {
+
+  console.log(`🚫 Erro Detectado:\n\n` + reason, promise)
+
+});
+
+process.on('uncaughtException', (error, origin) => {
+
+  console.log(`🚫 Erro Detectado:\n\n` + error, origin)
+
+});
+
+
+const axios = require("axios")
+const url = 'https://discord.com/api/v10/applications/@me';
+
+
+const data = {
+  description: "**Conheça a Gratian.pro!\nhttps://gratian.pro**",
 };
+
+axios.patch(url, data, {
+  headers: {
+    Authorization: `Bot ${token}`,
+    'Content-Type': 'application/json'
+  }
+}).catch((error) => {
+  console.error(`Erro ao atualizar aplicação: ${error}`);
+});
